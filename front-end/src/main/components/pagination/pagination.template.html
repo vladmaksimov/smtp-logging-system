@@ -1,0 +1,12 @@
+<div class="text-center">
+    <ul uib-pagination
+        total-items="vm.page.totalElements"
+        ng-model="vm.page.number"
+        max-size="5"
+        items-per-page="vm.page.size"
+        class="pagination"
+        boundary-link-numbers="true"
+        rotate="false"
+        previous-text="Prev"
+        ng-change="vm.paginate()"></ul>
+</div>

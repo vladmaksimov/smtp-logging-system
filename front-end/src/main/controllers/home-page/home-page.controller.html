@@ -1,0 +1,64 @@
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="/">SMTP Logging encoder</a>
+        </div>
+        <ul class="nav navbar-nav navbar-right" ng-if="vm.searchMode">
+            <li>
+                <a ng-click="vm.clearSearch()" class="nav-link">
+                    <span class="glyphicon glyphicon-remove icon-clear" aria-hidden="true"></span>
+                    <span>Clear</span>
+                </a>
+            </li>
+        </ul>
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <form class="navbar-form navbar-right">
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="Search in emails" ng-model="vm.search">
+                </div>
+                <button type="submit" class="btn btn-default" ng-click="vm.searching()">Submit</button>
+            </form>
+        </div>
+    </div>
+</nav>
+
+<page-controls-component page="vm.page"
+                         paginate="vm.paginate"
+                         status="vm.status"
+                         search="vm.search"
+                         update-filter="vm.updateFilter"></page-controls-component>
+
+<div>
+    <table class="table table-striped">
+        <thead>
+        <tr class="row">
+            <th class="col-md-1">First event time</th>
+            <th class="col-md-1">Event Key</th>
+            <th class="col-md-1">IP</th>
+            <th class="col-md-3">Email From</th>
+            <th class="col-md-4">Email To</th>
+            <th class="col-md-1">Status</th>
+            <th class="col-md-1">Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="logKey in vm.page.content track by logKey.logKey" class="row">
+            <td class="col-md-1">{{logKey.firstEventDate | date:'yyyy-MM-dd HH:mm:ss'}}</td>
+            <td class="col-md-1">{{logKey.logKey}}</td>
+            <td class="col-md-1">{{logKey.ip}}</td>
+            <td class="col-md-3">{{logKey.emailFrom}}</td>
+            <td class="col-md-4">{{logKey.emailTo}}</td>
+            <td class="col-md-1">{{logKey.status}}</td>
+            <td class="col-md-1">
+                <button class="btn btn-default" ng-click="vm.viewDetails(logKey.id)">View Details</button>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <page-controls-component page="vm.page"
+                             paginate="vm.paginate"
+                             status="vm.status"
+                             update-filter="vm.updateFilter"></page-controls-component>
+
+</div>

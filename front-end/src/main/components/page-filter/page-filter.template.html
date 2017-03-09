@@ -1,0 +1,17 @@
+    <div class="form-group">
+        <label for="size">On Page:</label>
+        <select class="form-control custom-filter-size" id="size"
+                ng-model="vm.page.size"
+                ng-change="vm.updateFilter()"
+                ng-options="option for option in vm.pageSizeArray track by option">
+        </select>
+    </div>
+
+    <div class="form-group" ng-show="vm.status != null">
+        <label for="type">Filter By:</label>
+        <select class="form-control custom-filter-status" id="type"
+                ng-model="vm.status"
+                ng-change="vm.updateFilter()"
+                ng-options="option for option in vm.statusArray track by option">
+        </select>
+    </div>
