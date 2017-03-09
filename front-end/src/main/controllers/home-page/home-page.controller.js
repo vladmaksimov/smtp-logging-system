@@ -1,11 +1,14 @@
 import "./home-page.controller.scss";
 import {STATES, DEFAULT_STATUS} from "../../configs/constants";
+import {connect} from "../../configs/websocket/socket";
+
 
 /*@ngInject*/
 export default function HomePageController($state, $stateParams, logService, utilService, toaster, logKeys) {
 
     return {
         $onInit: $onInit,
+        initWebSocket: initWebSocket,
         viewDetails: viewDetails,
         paginate: paginate,
         updateFilter: updateFilter,
@@ -19,6 +22,14 @@ export default function HomePageController($state, $stateParams, logService, uti
         this.search = null;
         this.searchMode = false;
         this.status = DEFAULT_STATUS;
+        connect();
+        // this.socket = new SockJS('http://localhost:8086/websocket')
+    }
+
+    function initWebSocket() {
+        // this.socket.onmessage(function (e) {
+        //     console.log(e);
+        // })
     }
 
     function paginate() {

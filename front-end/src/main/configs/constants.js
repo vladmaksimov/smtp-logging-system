@@ -9,6 +9,12 @@ export const STATES = {
     home: 'home'
 };
 
+export const WS_CHANNEL_PREFIX = '/topic/';
+export const WS_URL = 'http://localhost:8086/hello';
+export const WS_CHANNELS = [
+    'logKey',
+];
+
 export const PAGE_SIZE = [10, 20, 30, 40, 50, 100];
 export const STATUS_FILTER = ['ALL', 'PROCESSING', 'DEFERRED', 'SENT', 'BOUNCED'];
 export const DEFAULT_STATUS = 'ALL';
