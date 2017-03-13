@@ -1,96 +1,108 @@
 import "./home-page.controller.scss";
-import {STATES, DEFAULT_STATUS} from "../../configs/constants";
-import {connect} from "../../configs/websocket/socket";
+import {STATES, DEFAULT_STATUS, WS_CHANNEL, WS_CHANNEL_PREFIX, WS_TICKET_INTERVAL} from "../../configs/constants";
 
+let vm;
 
 /*@ngInject*/
-export default function HomePageController($state, $stateParams, logService, utilService, toaster, logKeys) {
+export default function HomePageController($state, $scope, $interval, logService, utilService, wsService, logKeys) {
 
     return {
         $onInit: $onInit,
-        initWebSocket: initWebSocket,
         viewDetails: viewDetails,
         paginate: paginate,
         updateFilter: updateFilter,
         searching: searching,
-        clearSearch: clearSearch
+        clearSearch: clearSearch,
     };
 
     function $onInit() {
-        this.page = logKeys.data;
-        this.page.number += 1;
-        this.search = null;
-        this.searchMode = false;
-        this.status = DEFAULT_STATUS;
-        connect();
-        // this.socket = new SockJS('http://localhost:8086/websocket')
-    }
+        vm = this;
+        vm.$scope = $scope;
+        vm.$interval = $interval;
+        vm.logService = logService;
+        vm.utilService = utilService;
+        vm.wsService = wsService;
 
-    function initWebSocket() {
-        // this.socket.onmessage(function (e) {
-        //     console.log(e);
-        // })
+        vm.page = logKeys.data;
+        vm.page.number += 1;
+        vm.search = null;
+        vm.searchMode = false;
+        vm.status = DEFAULT_STATUS;
+
+        initStomp();
     }
 
     function paginate() {
-        let pageable = utilService.createPageable(this.page.number - 1, this.page.size, this.status, this.search);
-        logService.getLogKeys(pageable)
-            .then((response) => {
-                this.page = response.data;
-                this.page.number += 1;
-            })
-            .catch((error) => {
-                toaster.warning('Load data error!', error.data.error);
-            });
+        let pageable = vm.utilService.createPageable(vm.page.number - 1, vm.page.size, this.status, vm.search);
+        vm.logService.getLogKeys(pageable)
+            .then(setPage)
+            .catch(vm.utilService.handleError);
     }
 
     function updateFilter() {
-        let pageable = utilService.createPageable(null, this.page.size, this.status, this.search);
-        logService.getLogKeys(pageable)
-            .then((response) => {
-                this.page = response.data;
-                this.page.number += 1;
-            })
-            .catch((error) => {
-                toaster.warning('Load data error!', error.data.error);
-            });
+        let pageable = vm.utilService.createPageable(null, vm.page.size, this.status, vm.search);
+        vm.logService.getLogKeys(pageable)
+            .then(setPage)
+            .catch(vm.utilService.handleError);
     }
 
     function searching() {
-        if (utilService.checkSearch(this.search)) {
-            let pageable = utilService.createPageable(null, null, null, this.search);
-            logService.getLogKeys(pageable)
-                .then((response) => {
-                    this.page = response.data;
-                    this.page.number += 1;
-                    this.searchMode = true;
-                    this.status = DEFAULT_STATUS;
-                })
-                .catch((error) => {
-                    toaster.warning('Load data error!', error.data.error);
-                });
-        } else {
-            toaster.warning('Incorrect search data', 'Can\'t search by empty value!')
+        if (vm.utilService.checkSearch(vm.search)) {
+            let pageable = vm.utilService.createPageable(null, null, null, vm.search);
+            vm.logService.getLogKeys(pageable)
+                .then(setSearchPage)
+                .catch(vm.utilService.handleError);
         }
     }
 
     function clearSearch() {
-        let pageable = utilService.createPageable(null, null, null, null);
-        logService.getLogKeys(pageable)
-            .then((response) => {
-                this.page = response.data;
-                this.page.number += 1;
-                this.searchMode = false;
-                this.search = null;
-                this.status = DEFAULT_STATUS;
-            })
-            .catch((error) => {
-                toaster.warning('Load data error!', error.data.error);
-            });
+        let pageable = vm.utilService.createPageable(null, null, null, null);
+        vm.logService.getLogKeys(pageable)
+            .then(clearSearchPage)
+            .catch(vm.utilService.handleError);
     }
 
     function viewDetails(id) {
         $state.go(STATES.details, {id: id});
+    }
+
+    //private function
+
+    function initStomp() {
+        let process = false;
+
+        vm.wsService.connect()
+            .then((socket) => socket.stomp.subscribe(WS_CHANNEL_PREFIX + WS_CHANNEL, (message) => process = true))
+            .catch(() => vm.utilService.showWarning('WebSocket Error!', 'Can\'t connect to server'));
+
+        vm.$interval(function () {
+            if (process) {
+                vm.paginate();
+                process = false;
+            }
+        }, WS_TICKET_INTERVAL);
+
+        vm.$scope.$on("$destroy", function () {
+            vm.wsService.disconnect();
+        })
+    }
+
+    function setPage(response) {
+        vm.page = response.data;
+        vm.page.number += 1;
+    }
+
+    function setSearchPage(response) {
+        setPage(response);
+        vm.searchMode = true;
+        vm.status = DEFAULT_STATUS;
+    }
+
+    function clearSearchPage(response) {
+        setPage(response);
+        vm.searchMode = false;
+        vm.search = null;
+        vm.status = DEFAULT_STATUS;
     }
 
 };

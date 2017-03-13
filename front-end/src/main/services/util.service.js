@@ -4,6 +4,8 @@ export default function utilService(toaster) {
     return {
         createPageable: createPageable,
         checkSearch: checkSearch,
+        errorHandler: errorHandler,
+        showWarning: showWarning
     };
 
     function createPageable(page, size, status, search) {
@@ -21,9 +23,17 @@ export default function utilService(toaster) {
         if (typeof search === 'string') {
             return search && search.trim().length > 0
         } else {
-            toaster.error('Incorrect type of search value!', search);
+            toaster.warning('Incorrect type of search value!', search);
             return false;
         }
+    }
+
+    function errorHandler(error) {
+        toaster.error('Load data error!', error.data.error);
+    }
+
+    function showWarning(title, message) {
+        toaster.warning(title, message);
     }
 
 }

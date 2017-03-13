@@ -7,6 +7,7 @@ import com.maksimov.service.FileWatchService;
 import com.maksimov.service.LogDetailsService;
 import com.maksimov.service.LogService;
 import com.maksimov.utils.Utils;
+import com.maksimov.service.WebSocketService;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -43,6 +44,7 @@ public class FileWatchCollectionServiceImpl implements FileWatchService {
     private LogService logService;
     private LogDetailsService detailsService;
     private List<MessageProcessor> messageProcessors;
+    private WebSocketService webSocketService;
 
     @Override
     public void processFile(List<String> lines) {
@@ -81,8 +83,12 @@ public class FileWatchCollectionServiceImpl implements FileWatchService {
             }
         }
 
-        logService.saveCollection(keyMap.values());
-        detailsService.saveCollection(details);
+        if (!details.isEmpty()) {
+            logService.saveCollection(keyMap.values());
+            detailsService.saveCollection(details);
+            webSocketService.sendMessage();
+        }
+
     }
 
     @Override
@@ -180,4 +186,8 @@ public class FileWatchCollectionServiceImpl implements FileWatchService {
         this.messageProcessors = messageProcessors;
     }
 
+    @Autowired
+    public void setWebSocketService(WebSocketService webSocketService) {
+        this.webSocketService = webSocketService;
+    }
 }

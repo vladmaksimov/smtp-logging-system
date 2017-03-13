@@ -11,6 +11,7 @@ import DetailsController from './controllers/details/details.controller';
 // services
 import logService from './services/log.service';
 import utilService from './services/util.service';
+import wsService from './services/ws.service';
 
 // run functions
 import registerAngularBusy from './components/angular-busy/angular-busy.run';
@@ -26,6 +27,7 @@ const moduleName = angular
     .controller('DetailsController', DetailsController)
     .service('logService', logService)
     .service('utilService', utilService)
+    .service('wsService', wsService)
     .run(registerAngularBusy)
     .name;
 

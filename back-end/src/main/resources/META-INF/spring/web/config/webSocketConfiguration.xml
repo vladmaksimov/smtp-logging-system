@@ -6,7 +6,7 @@
  http://www.springframework.org/schema/websocket/spring-websocket-4.3.xsd">
 
     <websocket:message-broker application-destination-prefix="/app">
-        <websocket:stomp-endpoint path="/hello" allowed-origins="*">
+        <websocket:stomp-endpoint path="/websocket" allowed-origins="*">
             <websocket:sockjs/>
         </websocket:stomp-endpoint>
         <websocket:simple-broker prefix="/topic"/>
