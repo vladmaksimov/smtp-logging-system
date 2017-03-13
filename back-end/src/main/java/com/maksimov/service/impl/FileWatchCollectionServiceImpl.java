@@ -6,8 +6,8 @@ import com.maksimov.processors.MessageProcessor;
 import com.maksimov.service.FileWatchService;
 import com.maksimov.service.LogDetailsService;
 import com.maksimov.service.LogService;
-import com.maksimov.utils.Utils;
 import com.maksimov.service.WebSocketService;
+import com.maksimov.utils.Utils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -86,7 +86,7 @@ public class FileWatchCollectionServiceImpl implements FileWatchService {
         if (!details.isEmpty()) {
             logService.saveCollection(keyMap.values());
             detailsService.saveCollection(details);
-            webSocketService.sendMessage();
+            webSocketService.sendMessage(keyMap.values());
         }
 
     }

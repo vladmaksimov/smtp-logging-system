@@ -1,3 +1,12 @@
+const environment = {
+    development: {
+        isProduction: false
+    },
+    production: {
+        isProduction: true
+    }
+}[process.env.NODE_ENV || 'development'];
+
 export const ROUTES = {
     getLogKeys: '/api/key/get',
     getLogKeyById: '/api/key/get/{id}',
@@ -10,8 +19,8 @@ export const STATES = {
 };
 
 export const WS_CHANNEL_PREFIX = '/topic/';
-export const WS_URL = 'http://localhost:8086/websocket';
-export const WS_CHANNEL = 'key/update';
+export const WS_URL = environment.isProduction ? '/websocket' : 'http://localhost:8086/websocket';
+export const WS_CHANNEL = 'key/update/';
 export const WS_TICKET_INTERVAL = 10000;
 
 export const PAGE_SIZE = [10, 20, 30, 40, 50, 100];
