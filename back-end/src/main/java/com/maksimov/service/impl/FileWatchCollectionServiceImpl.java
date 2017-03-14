@@ -40,6 +40,7 @@ public class FileWatchCollectionServiceImpl implements FileWatchService {
     private static final Integer LOG_KEY_VALUE = 1;
     private static final String LOG_KEY_REGEX = "^[A-Z0-9]+$";
     private static final Integer LOG_MESSAGE_VALUE = 2;
+    private static final Integer LOG_MESSAGE_TO_SAVE = 10000;
 
     private LogService logService;
     private LogDetailsService detailsService;
@@ -49,8 +50,8 @@ public class FileWatchCollectionServiceImpl implements FileWatchService {
     @Override
     public void processFile(List<String> lines) {
         Map<String, LogKey> keyMap = new LinkedHashMap<>();
-
         List<LogDetail> details = new LinkedList<>();
+        Integer count = 0;
 
         for (String log : lines) {
             if (logger.isDebugEnabled()) {
@@ -75,6 +76,14 @@ public class FileWatchCollectionServiceImpl implements FileWatchService {
                     details.add(detail);
 
                     updateLogStatus(logKey, message);
+                    count++;
+
+                    if (LOG_MESSAGE_TO_SAVE.equals(count)) {
+                        saveLogsAndSensWsMessage(keyMap, details);
+                        clearDataToSave(keyMap, details);
+                        count = 0;
+                    }
+
                 }
             } else {
                 if (logger.isDebugEnabled()) {
@@ -84,11 +93,8 @@ public class FileWatchCollectionServiceImpl implements FileWatchService {
         }
 
         if (!details.isEmpty()) {
-            logService.saveCollection(keyMap.values());
-            detailsService.saveCollection(details);
-            webSocketService.sendMessage(keyMap.values());
+            saveLogsAndSensWsMessage(keyMap, details);
         }
-
     }
 
     @Override
@@ -106,6 +112,19 @@ public class FileWatchCollectionServiceImpl implements FileWatchService {
         return count;
     }
 
+    private void saveLogsAndSensWsMessage(Map<String, LogKey> keyMap, List<LogDetail> details) {
+        logger.info("Keys to save/update: " + keyMap.size());
+        logger.info("Details to save: " + details.size());
+
+        logService.saveCollection(keyMap.values());
+        detailsService.saveCollection(details);
+        webSocketService.sendMessage(keyMap.values());
+    }
+
+    private void clearDataToSave(Map<String, LogKey> keyMap, List<LogDetail> details) {
+        keyMap.clear();
+        details.clear();
+    }
 
     private LogKey createLogKey(String key, Date date, String log) {
         LogKey logKey = new LogKey();

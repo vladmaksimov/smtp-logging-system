@@ -37,10 +37,6 @@ public class LogKey {
     @Column(name = "status", length = 250)
     private String status;
 
-//    @OneToMany(mappedBy = "logKey")
-//    @Cascade(CascadeType.DELETE)
-//    private Set<LogDetail> details;
-
     public Long getId() {
         return id;
     }
@@ -97,20 +93,16 @@ public class LogKey {
         this.status = status;
     }
 
-    //    public Set<LogDetail> getDetails() {
-//        return details;
-//    }
-//
-//    public void setDetails(Set<LogDetail> details) {
-//        this.details = details;
-//    }
-
     @Override
     public String toString() {
         return "LogKey{" +
                 "id=" + id +
-                ", key='" + logKey + '\'' +
+                ", firstEventDate=" + firstEventDate +
+                ", logKey='" + logKey + '\'' +
                 ", ip='" + ip + '\'' +
+                ", emailFrom='" + emailFrom + '\'' +
+                ", emailTo='" + emailTo + '\'' +
+                ", status='" + status + '\'' +
                 '}';
     }
 

@@ -71,7 +71,7 @@ export default function DetailsController($state, $scope, $stateParams, $interva
 
     function initStomp() {
         let process = false;
-        let channel = `${WS_CHANNEL_PREFIX}${WS_CHANNEL}${vm.$stateParams.id}`;
+        let channel = `${WS_CHANNEL_PREFIX}${WS_CHANNEL}/${vm.$stateParams.id}`;
 
         vm.wsService.connect()
             .then((socket) => socket.stomp.subscribe(channel, (message) => process = true))

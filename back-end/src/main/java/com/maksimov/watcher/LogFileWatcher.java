@@ -45,28 +45,21 @@ public class LogFileWatcher implements InitializingBean {
         private void createWatcher() {
             String pathToFile = path + file;
             Path folder = Paths.get(path);
-
             Long rowCount = watchService.getFirstRow(pathToFile);
 
             try {
                 WatchService watcher = folder.getFileSystem().newWatchService();
                 folder.register(watcher, StandardWatchEventKinds.ENTRY_MODIFY);
+                rowCount = processLines(pathToFile, rowCount);
 
                 while (!interrupted()) {
                     WatchKey key = watcher.take();
                     List<WatchEvent<?>> events = key.pollEvents();
+                    rowCount = checkLineCount(pathToFile, rowCount);
+
                     for (WatchEvent event : events) {
                         if (event.kind() == StandardWatchEventKinds.ENTRY_MODIFY && event.context().toString().equals(file)) {
-                            try (BufferedReader reader = Files.newBufferedReader(Paths.get(pathToFile), StandardCharsets.UTF_8)) {
-                                List<String> line = reader.lines().skip(rowCount).collect(Collectors.toList());
-
-                                logger.info("Rows to process: " + line.size());
-
-                                watchService.processFile(line);
-                                rowCount += line.size();
-                            } catch (IOException e) {
-                                logger.error("Can't get data from file: " + file + ". Error: " + e.getMessage());
-                            }
+                            rowCount = processLines(pathToFile, rowCount);
                         }
                     }
 
@@ -84,6 +77,29 @@ public class LogFileWatcher implements InitializingBean {
             }
         }
 
+    }
+
+    private Long processLines(String pathToFile, Long rowCount) {
+        try (BufferedReader reader = Files.newBufferedReader(Paths.get(pathToFile), StandardCharsets.UTF_8)) {
+            List<String> line = reader.lines().skip(rowCount).collect(Collectors.toList());
+
+            logger.info("Rows to process: " + line.size());
+
+            watchService.processFile(line);
+            rowCount += line.size();
+        } catch (IOException e) {
+            logger.error("Can't get data from file: " + file + ". Error: " + e.getMessage());
+        }
+        return rowCount;
+    }
+
+    private Long checkLineCount(String pathToFile, Long count) {
+        try (BufferedReader reader = Files.newBufferedReader(Paths.get(pathToFile), StandardCharsets.UTF_8)) {
+            return (count < reader.lines().count()) ? count : 0;
+        } catch (IOException e) {
+            logger.error("Can't get row count from file: " + file + ". Error: " + e.getMessage());
+        }
+        return 0L;
     }
 
     @Autowired
