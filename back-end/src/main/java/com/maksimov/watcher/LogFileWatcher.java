@@ -73,7 +73,6 @@ public class LogFileWatcher implements InitializingBean {
                 logger.error("Error to create watcher! Incorrect file path: " + file);
             } catch (Exception e) {
                 logger.error("Error to create watcher: " + e.toString());
-                createWatcher();
             }
         }
 
