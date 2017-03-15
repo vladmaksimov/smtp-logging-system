@@ -62,6 +62,13 @@ module.exports = {
             }
         }),
 
+        new webpack.DefinePlugin({
+            NODE_ENV: JSON.stringify(DEBUG ? 'development' : 'production'),
+            'process.env': {
+                NODE_ENV: JSON.stringify(DEBUG ? 'development' : 'production')
+            }
+        }),
+
         new webpack.ProvidePlugin({
             $: 'jquery',
             jQuery: 'jquery',

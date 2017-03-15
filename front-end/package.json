@@ -6,7 +6,7 @@
   "license": "ISC",
   "scripts": {
     "start": "npm run server",
-    "prod": "cross-env NODE_ENV=production webpack --display-error-details --optimize-minimize",
+    "prod": "cross-env NODE_ENV=production webpack --config webpack.config.js --progress --profile --display-reasons --colors --display-error-details --display-cached --optimize-minimize",
     "build": "webpack --display-error-details",
     "watch": "webpack --display-error-details --watch -d",
     "server": "cross-env NODE_ENV=development webpack-dev-server --history-api-fallback --inline --progress --port 9000 --display-reasons --colors -p --display-error-details",

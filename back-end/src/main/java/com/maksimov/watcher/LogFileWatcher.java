@@ -50,12 +50,12 @@ public class LogFileWatcher implements InitializingBean {
             try {
                 WatchService watcher = folder.getFileSystem().newWatchService();
                 folder.register(watcher, StandardWatchEventKinds.ENTRY_MODIFY);
-                rowCount = processLines(pathToFile, rowCount);
+                processLines(pathToFile, rowCount);
 
                 while (!interrupted()) {
                     WatchKey key = watcher.take();
                     List<WatchEvent<?>> events = key.pollEvents();
-                    rowCount = checkLineCount(pathToFile, rowCount);
+                    rowCount = watchService.getFirstRow(pathToFile);
 
                     for (WatchEvent event : events) {
                         if (event.kind() == StandardWatchEventKinds.ENTRY_MODIFY && event.context().toString().equals(file)) {
@@ -90,15 +90,6 @@ public class LogFileWatcher implements InitializingBean {
             logger.error("Can't get data from file: " + file + ". Error: " + e.getMessage());
         }
         return rowCount;
-    }
-
-    private Long checkLineCount(String pathToFile, Long count) {
-        try (BufferedReader reader = Files.newBufferedReader(Paths.get(pathToFile), StandardCharsets.UTF_8)) {
-            return (count < reader.lines().count()) ? count : 0;
-        } catch (IOException e) {
-            logger.error("Can't get row count from file: " + file + ". Error: " + e.getMessage());
-        }
-        return 0L;
     }
 
     @Autowired

@@ -35,12 +35,13 @@ public class FileWatchCollectionServiceImpl implements FileWatchService {
     private static final String LOG_PART_WARNING = "warning";
     private static final String LOG_KEY_SEPARATOR = ": ";
     private static final String LOG_EVENT_TYPE_SEPARATOR = "[";
+    private static final String LOG_KEY_REGEX = "^[A-Z0-9]+$";
     private static final Integer LOG_SEPARATE_LIMIT = 3;
     private static final Integer LOG_WITH_KEY_MIN_LENGTH = 2;
     private static final Integer LOG_KEY_VALUE = 1;
-    private static final String LOG_KEY_REGEX = "^[A-Z0-9]+$";
     private static final Integer LOG_MESSAGE_VALUE = 2;
     private static final Integer LOG_MESSAGE_TO_SAVE = 10000;
+    private static final Long ZERO_COUNT = 0L;
 
     private LogService logService;
     private LogDetailsService detailsService;
@@ -99,7 +100,7 @@ public class FileWatchCollectionServiceImpl implements FileWatchService {
 
     @Override
     public long getFirstRow(String file) {
-        long count = 0;
+        long count = ZERO_COUNT;
         try (BufferedReader reader = Files.newBufferedReader(Paths.get(file), StandardCharsets.UTF_8)) {
             List<String> lines = reader.lines().collect(Collectors.toList());
             LogDetail lastDetail = detailsService.getLastRow();
@@ -109,7 +110,7 @@ public class FileWatchCollectionServiceImpl implements FileWatchService {
         } catch (IOException e) {
             logger.error("Can't get data from file: " + file + ". Error: " + e.getMessage());
         }
-        return count;
+        return ZERO_COUNT.equals(count) ? count : count + 1;
     }
 
     private void saveLogsAndSensWsMessage(Map<String, LogKey> keyMap, List<LogDetail> details) {
