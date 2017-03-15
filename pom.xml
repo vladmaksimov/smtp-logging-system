@@ -10,6 +10,7 @@
     <modules>
         <module>back-end</module>
         <module>front-end</module>
+        <module>application-war</module>
     </modules>
 
     <build>
