@@ -6,10 +6,10 @@
   "license": "ISC",
   "scripts": {
     "start": "npm run server",
-    "prod": "webpack --display-error-details --optimize-minimize",
+    "prod": "cross-env NODE_ENV=production webpack --config webpack.config.js --progress --profile --display-reasons --colors --display-error-details --display-cached --optimize-minimize",
     "build": "webpack --display-error-details",
     "watch": "webpack --display-error-details --watch -d",
-    "server": "webpack-dev-server --history-api-fallback --inline --progress --port 9000 --display-reasons --colors -p --display-error-details",
+    "server": "cross-env NODE_ENV=development webpack-dev-server --history-api-fallback --inline --progress --port 9000 --display-reasons --colors -p --display-error-details",
     "test": "npm run build && karma start"
   },
   "dependencies": {
@@ -25,6 +25,8 @@
     "angular-ui-router": "^0.3.1",
     "angular-ui-validate": "^1.2.2",
     "angularjs-toaster": "^2.0.0",
+    "sockjs-client": "^1.1.2",
+    "stompjs": "^2.3.3",
     "babel-register": "^6.14.0",
     "bootstrap": "^3.3.7",
     "jquery": "^3.1.0",
@@ -60,6 +62,7 @@
     "sinon": "git+https://github.com/uberVU/Sinon.JS",
     "style-loader": "^0.13.1",
     "webpack": "^1.13.1",
-    "webpack-dev-server": "^1.16.1"
+    "webpack-dev-server": "^1.16.1",
+    "cross-env": "^2.0.0"
   }
 }

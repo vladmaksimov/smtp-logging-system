@@ -6,6 +6,7 @@ import com.maksimov.processors.MessageProcessor;
 import com.maksimov.service.FileWatchService;
 import com.maksimov.service.LogDetailsService;
 import com.maksimov.service.LogService;
+import com.maksimov.service.WebSocketService;
 import com.maksimov.utils.Utils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,21 +35,24 @@ public class FileWatchCollectionServiceImpl implements FileWatchService {
     private static final String LOG_PART_WARNING = "warning";
     private static final String LOG_KEY_SEPARATOR = ": ";
     private static final String LOG_EVENT_TYPE_SEPARATOR = "[";
+    private static final String LOG_KEY_REGEX = "^[A-Z0-9]+$";
     private static final Integer LOG_SEPARATE_LIMIT = 3;
     private static final Integer LOG_WITH_KEY_MIN_LENGTH = 2;
     private static final Integer LOG_KEY_VALUE = 1;
-    private static final String LOG_KEY_REGEX = "^[A-Z0-9]+$";
     private static final Integer LOG_MESSAGE_VALUE = 2;
+    private static final Integer LOG_MESSAGE_TO_SAVE = 10000;
+    private static final Long ZERO_COUNT = 0L;
 
     private LogService logService;
     private LogDetailsService detailsService;
     private List<MessageProcessor> messageProcessors;
+    private WebSocketService webSocketService;
 
     @Override
     public void processFile(List<String> lines) {
         Map<String, LogKey> keyMap = new LinkedHashMap<>();
-
         List<LogDetail> details = new LinkedList<>();
+        Integer count = 0;
 
         for (String log : lines) {
             if (logger.isDebugEnabled()) {
@@ -73,6 +77,14 @@ public class FileWatchCollectionServiceImpl implements FileWatchService {
                     details.add(detail);
 
                     updateLogStatus(logKey, message);
+                    count++;
+
+                    if (LOG_MESSAGE_TO_SAVE.equals(count)) {
+                        saveLogsAndSensWsMessage(keyMap, details);
+                        clearDataToSave(keyMap, details);
+                        count = 0;
+                    }
+
                 }
             } else {
                 if (logger.isDebugEnabled()) {
@@ -81,13 +93,14 @@ public class FileWatchCollectionServiceImpl implements FileWatchService {
             }
         }
 
-        logService.saveCollection(keyMap.values());
-        detailsService.saveCollection(details);
+        if (!details.isEmpty()) {
+            saveLogsAndSensWsMessage(keyMap, details);
+        }
     }
 
     @Override
     public long getFirstRow(String file) {
-        long count = 0;
+        long count = ZERO_COUNT;
         try (BufferedReader reader = Files.newBufferedReader(Paths.get(file), StandardCharsets.UTF_8)) {
             List<String> lines = reader.lines().collect(Collectors.toList());
             LogDetail lastDetail = detailsService.getLastRow();
@@ -97,9 +110,22 @@ public class FileWatchCollectionServiceImpl implements FileWatchService {
         } catch (IOException e) {
             logger.error("Can't get data from file: " + file + ". Error: " + e.getMessage());
         }
-        return count;
+        return ZERO_COUNT.equals(count) ? count : count + 1;
     }
 
+    private void saveLogsAndSensWsMessage(Map<String, LogKey> keyMap, List<LogDetail> details) {
+        logger.info("Keys to save/update: " + keyMap.size());
+        logger.info("Details to save: " + details.size());
+
+        logService.saveCollection(keyMap.values());
+        detailsService.saveCollection(details);
+        webSocketService.sendMessage(keyMap.values());
+    }
+
+    private void clearDataToSave(Map<String, LogKey> keyMap, List<LogDetail> details) {
+        keyMap.clear();
+        details.clear();
+    }
 
     private LogKey createLogKey(String key, Date date, String log) {
         LogKey logKey = new LogKey();
@@ -180,4 +206,8 @@ public class FileWatchCollectionServiceImpl implements FileWatchService {
         this.messageProcessors = messageProcessors;
     }
 
+    @Autowired
+    public void setWebSocketService(WebSocketService webSocketService) {
+        this.webSocketService = webSocketService;
+    }
 }

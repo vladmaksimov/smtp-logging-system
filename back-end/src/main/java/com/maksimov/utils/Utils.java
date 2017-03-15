@@ -2,25 +2,32 @@ package com.maksimov.utils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created on 02.03.17.
  */
 public class Utils {
 
-    private static final String DATE_FORMAT = "MMM  d HH:mm:ss";
+    private static final List<String> FORMATS = new ArrayList<String>() {{
+        add("MMM  d HH:mm:ss");
+        add("MMM dd HH:mm:ss");
+    }};
+
     private static final String SEARCH_OPERATOR = "%";
 
     private static Date parseDate(String dateToParse) {
-        SimpleDateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
-        Date date = null;
-        try {
-            date = new java.sql.Date(formatter.parse(dateToParse).getTime());
-        } catch (ParseException ignored) {
+        for (String format : FORMATS) {
+            SimpleDateFormat formatter = new SimpleDateFormat(format);
+            try {
+                return new java.sql.Date(formatter.parse(dateToParse).getTime());
+            } catch (ParseException ignored) {
+            }
         }
-        return date;
+        return null;
     }
 
     public static Date processDate(String dateToParse) {

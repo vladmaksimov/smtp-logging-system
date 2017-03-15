@@ -1,8 +1,10 @@
 'use strict';
 
-var path = require('path'),
+const path = require('path'),
     webpack = require('webpack'),
     HtmlWebpackPlugin = require('html-webpack-plugin');
+
+const DEBUG = process.env.NODE_ENV !== 'production';
 
 module.exports = {
     entry: {
@@ -53,7 +55,18 @@ module.exports = {
         new HtmlWebpackPlugin({
             template: './src/main/index.html',
             chunks: ['angularjs-app'],
-            inject: 'body'
+            inject: 'body',
+            NODE_ENV: JSON.stringify(DEBUG ? 'development' : 'production'),
+            'process.env': {
+                NODE_ENV: JSON.stringify(DEBUG ? 'development' : 'production')
+            }
+        }),
+
+        new webpack.DefinePlugin({
+            NODE_ENV: JSON.stringify(DEBUG ? 'development' : 'production'),
+            'process.env': {
+                NODE_ENV: JSON.stringify(DEBUG ? 'development' : 'production')
+            }
         }),
 
         new webpack.ProvidePlugin({
