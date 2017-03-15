@@ -4,6 +4,7 @@ const path = require('path'),
     webpack = require('webpack'),
     HtmlWebpackPlugin = require('html-webpack-plugin');
 
+const output = path.join(__dirname, 'target/static');
 const DEBUG = process.env.NODE_ENV !== 'production';
 
 module.exports = {
@@ -12,8 +13,8 @@ module.exports = {
     },
 
     output: {
-        path: path.join(__dirname, 'target/'),
-        filename: 'assets/[name].bundle.js'
+        path: output,
+        filename: './[name].bundle.js'
     },
 
     devtool: 'eval',
@@ -46,7 +47,7 @@ module.exports = {
             },
             {
                 test: /\.(png|jpe?g|gif|svg|woff|woff2|ttf|eot|ico)$/,
-                loader: 'file?name=assets/[name].[hash].[ext]'
+                loader: 'file?name=[name].[hash].[ext]'
             }
         ]
     },

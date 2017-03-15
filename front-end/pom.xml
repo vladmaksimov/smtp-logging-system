@@ -2,8 +2,30 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.maksimov</groupId>
+    <parent>
+        <groupId>com.maksimov</groupId>
+        <artifactId>smtp-logging-system</artifactId>
+        <version>1.0</version>
+    </parent>
+
     <artifactId>front-end</artifactId>
     <version>1.0</version>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.3.2</version>
+
+                <configuration>
+                    <classesDirectory>target</classesDirectory>
+                    <includes>
+                        <include>static/**</include>
+                    </includes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
