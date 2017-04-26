@@ -1,7 +1,7 @@
 <nav class="navbar navbar-default">
     <div class="container-fluid">
         <div class="navbar-header">
-            <a class="navbar-brand" ui-sref="home" ui-sref-opts="{reload: true}">SMTP Logging encoder</a>
+            <a class="navbar-brand" ui-sref="home">SMTP Logging encoder</a>
         </div>
         <ul class="nav navbar-nav navbar-right" ng-if="vm.searchMode">
             <li>
@@ -21,6 +21,8 @@
         </div>
     </div>
 </nav>
+
+<key-filter-component></key-filter-component>
 
 <page-controls-component page="vm.page"
                          paginate="vm.paginate"

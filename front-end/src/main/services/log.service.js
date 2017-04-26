@@ -9,11 +9,12 @@ export default function logService($http) {
         getLogDetails: getLogDetails
     };
 
-    function getLogKeys(pageable) {
+    function getLogKeys(pageable, conditions) {
         return $http({
-            method: 'GET',
+            method: 'POST',
             url: ROUTES.getLogKeys,
-            params: pageable
+            params: pageable,
+            data: conditions
         });
     }
 

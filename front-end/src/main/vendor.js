@@ -19,6 +19,7 @@ import 'angular-busy/angular-busy.css';
 import paginationComponent from './components/pagination/pagination.component';
 import pageFilterComponent from './components/page-filter/page-filter.component';
 import pageControlsComponent from './components/page-controls/page-controls.component';
+import keyFilterComponent from './components/key-filter/key-filter.component';
 
 export default angular
     .module('dependency.vendor', [
@@ -34,6 +35,7 @@ export default angular
         // local dependencies
         paginationComponent,
         pageFilterComponent,
-        pageControlsComponent
+        pageControlsComponent,
+        keyFilterComponent
     ])
     .name;

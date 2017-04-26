@@ -12,7 +12,8 @@ export default function HomePageController($state, $scope, $interval, logService
         paginate: paginate,
         updateFilter: updateFilter,
         searching: searching,
-        clearSearch: clearSearch,
+        // clearSearch: clearSearch,
+        toggleFilters: toggleFilters
     };
 
     function $onInit() {
@@ -25,45 +26,45 @@ export default function HomePageController($state, $scope, $interval, logService
 
         vm.page = logKeys.data;
         vm.page.number += 1;
-        vm.search = null;
+        vm.search = $state.current.name === 'search' && $state.params.search ? $state.params.search : null;
         vm.searchMode = false;
-        vm.status = DEFAULT_STATUS;
+        vm.showFilters = false;
+        vm.status = $state.params.status ? $state.params.status : DEFAULT_STATUS;
 
         initStomp();
     }
 
     function paginate() {
-        let pageable = vm.utilService.createPageable(vm.page.number - 1, vm.page.size, this.status, vm.search);
-        vm.logService.getLogKeys(pageable)
-            .then(setPage)
-            .catch(vm.utilService.handleError);
+        let pageable = vm.utilService.createPageable(vm.page.number, vm.page.size, this.status, vm.search);
+        pageable.conditions = JSON.stringify([{field: 'from', value: 'vasanthi', type: 'string', comparison: 'eq'}]);
+        $state.go($state.current.name, pageable, {inherit: false});
     }
 
     function updateFilter() {
         let pageable = vm.utilService.createPageable(null, vm.page.size, this.status, vm.search);
-        vm.logService.getLogKeys(pageable)
-            .then(setPage)
-            .catch(vm.utilService.handleError);
+        $state.go($state.current.name, pageable, {inherit: false});
     }
 
     function searching() {
         if (vm.utilService.checkSearch(vm.search)) {
             let pageable = vm.utilService.createPageable(null, null, null, vm.search);
-            vm.logService.getLogKeys(pageable)
-                .then(setSearchPage)
-                .catch(vm.utilService.handleError);
+            $state.go('search', pageable, {inherit: false});
         }
     }
 
-    function clearSearch() {
-        let pageable = vm.utilService.createPageable(null, null, null, null);
-        vm.logService.getLogKeys(pageable)
-            .then(clearSearchPage)
-            .catch(vm.utilService.handleError);
-    }
+    // function clearSearch() {
+    //     let pageable = vm.utilService.createPageable(null, null, null, null);
+    //     vm.logService.getLogKeys(pageable)
+    //         .then(clearSearchPage)
+    //         .catch(vm.utilService.handleError);
+    // }
 
     function viewDetails(id) {
         $state.go(STATES.details, {id: id});
+    }
+    
+    function toggleFilters() {
+        vm.showFilters = !vm.showFilters;
     }
 
     //private function
@@ -87,7 +88,7 @@ export default function HomePageController($state, $scope, $interval, logService
         })
     }
 
-    function setPage(response) {
+/*    function setPage(response) {
         vm.page = response.data;
         vm.page.number += 1;
     }
@@ -103,6 +104,6 @@ export default function HomePageController($state, $scope, $interval, logService
         vm.searchMode = false;
         vm.search = null;
         vm.status = DEFAULT_STATUS;
-    }
+    }*/
 
 };

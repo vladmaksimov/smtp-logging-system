@@ -14,3 +14,28 @@
 .icon-clear {
   padding-right: 5px;
 }
+
+.filter {
+  padding-bottom: 20px;
+}
+
+.toggle-filter {
+  cursor: pointer;
+  font-size: 1.2em;
+  width: 100%;
+  border-bottom: 1px solid #CCCCCC;
+}
+
+.animate-show-hide.ng-hide {
+  opacity: 0;
+}
+
+.animate-show-hide.ng-hide-add,
+.animate-show-hide.ng-hide-remove {
+  transition: all linear 0.5s;
+}
+
+.check-element {
+  opacity: 1;
+  padding: 10px;
+}

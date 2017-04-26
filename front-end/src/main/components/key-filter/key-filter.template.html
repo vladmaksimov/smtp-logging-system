@@ -1,0 +1,46 @@
+<div class="page-controls">
+    <div class="filter">
+        <div class="toggle-filter" ng-click="vm.toggleFilters()">
+            <span class="glyphicon glyphicon-menu-right"></span>
+            <span>Filters</span>
+        </div>
+        <div class="check-element animate-show-hide" ng-show="vm.showFilters">
+            <span>Add filter:</span>
+            <select name="key-list-select"
+                    class="form-control custom-filter-status"
+                    ng-change="vm.buildFilter()"
+                    ng-model="vm.key">
+                <option value="">Select filter</option>
+                <option ng-repeat="option in vm.keyList" value="{{option.key}}" ng-disabled="option.disabled">
+                    {{option.value}}
+                </option>
+            </select>
+
+            <div>
+                <ul class="form-inline">
+                    <li ng-repeat="filter in vm.filterList">
+
+                        <div>
+                            <input type="checkbox" ng-model="filter.use">
+                            <span>{{filter.value}}</span>
+                            <div ng-if="filter.use">
+                            <select name="key-list-select"
+                                    class="form-control custom-filter-status"
+                                    ng-model="filter.key">
+                                <option ng-repeat="option in filter.keys" value="{{option.key}}">{{option.val}}</option>
+                            </select>
+                            <input type="{{filter.type}}" ng-model="filter.val" class="form-control" ng-if="filter.filter !== 'status'"/>
+                            <select class="form-control custom-filter-status" id="type"  ng-if="filter.filter === 'status'"
+                                    ng-model="filter.val"
+                                    ng-options="option for option in vm.statusArray track by option">
+                            </select>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+                <button class="btn btn-default" ng-click="vm.applyFilter()">Apply</button>
+            </div>
+        </div>
+    </div>
+
+</div>

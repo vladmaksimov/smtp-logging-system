@@ -15,6 +15,8 @@ public class Utils {
     private static final List<String> FORMATS = new ArrayList<String>() {{
         add("MMM  d HH:mm:ss");
         add("MMM dd HH:mm:ss");
+        add("yyyy-MM-dd");
+        add("MMM dd yyyy");
     }};
 
     private static final String SEARCH_OPERATOR = "%";
@@ -49,6 +51,10 @@ public class Utils {
             result = SEARCH_OPERATOR.concat(search).concat(SEARCH_OPERATOR);
         }
         return result;
+    }
+
+    public static String getStringFromObject(Object o) {
+        return o.toString();
     }
 
 }

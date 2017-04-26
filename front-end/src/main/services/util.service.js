@@ -1,3 +1,5 @@
+import {DEFAULT_STATUS, DEFAULT_PAGE, DEFAULT_PAGE_SIZE} from "../configs/constants";
+
 /*@ngInject*/
 export default function utilService(toaster) {
 
@@ -11,9 +13,9 @@ export default function utilService(toaster) {
     function createPageable(page, size, status, search) {
         let pageable = {};
 
-        if (page) pageable.page = page;
-        if (size) pageable.size = size;
-        if (status) pageable.status = status;
+        if (page && page !== DEFAULT_PAGE) pageable.page = page;
+        if (size && size !== DEFAULT_PAGE_SIZE) pageable.size = size;
+        if (status && status !== DEFAULT_STATUS) pageable.status = status;
         if (search) pageable.search = search;
 
         return pageable;
