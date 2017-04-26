@@ -3,14 +3,12 @@ package com.maksimov.service.impl;
 import com.maksimov.models.entity.LogKey;
 import com.maksimov.models.entity.filter.Condition;
 import com.maksimov.persistence.LogPersistence;
-import com.maksimov.queryBuilder.QueryBuilder;
-import com.maksimov.queryBuilder.QueryBuilderImpl;
+import com.maksimov.queryBuilder.FilterSpecification;
 import com.maksimov.service.LogService;
 import com.maksimov.utils.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -30,7 +28,7 @@ public class LogServiceImpl implements LogService {
     public Page<LogKey> getLogs(Pageable page, String status, List<Condition> filters) {
 
         if (filters != null && !filters.isEmpty()) {
-            return persistence.findAll(new QueryBuilderImpl<>(filters), page);
+            return persistence.findAll(new FilterSpecification<>(filters), page);
         }
 
         if (status == null || TYPE_ALL.equals(status)) {

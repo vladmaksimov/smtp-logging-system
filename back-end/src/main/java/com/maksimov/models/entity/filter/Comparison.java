@@ -7,6 +7,5 @@ public enum Comparison {
     eq,
     lk,
     gt,
-    lt,
-    neq
+    lt
 }

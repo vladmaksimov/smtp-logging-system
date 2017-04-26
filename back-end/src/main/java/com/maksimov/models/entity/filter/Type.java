@@ -5,7 +5,5 @@ package com.maksimov.models.entity.filter;
  */
 public enum Type {
     string,
-    date,
-    bool,
-    list
+    date
 }

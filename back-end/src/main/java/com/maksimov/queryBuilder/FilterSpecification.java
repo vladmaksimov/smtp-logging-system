@@ -6,8 +6,8 @@ import com.maksimov.utils.Utils;
 import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.*;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -15,28 +15,28 @@ import java.util.List;
 /**
  * Created  on 13.04.17.
  */
-public class QueryBuilderImpl<T> implements Specification<T> {
+public class FilterSpecification<T> implements Specification<T> {
 
     private List<Condition> conditions;
 
-    public QueryBuilderImpl(List<Condition> conditions) {
+    public FilterSpecification(List<Condition> conditions) {
         this.conditions = conditions;
     }
 
     public Predicate toPredicate(Root root, CriteriaQuery query, CriteriaBuilder cb) {
-        List<Predicate> predicates = buildPredicates(root, query, cb);
+        List<Predicate> predicates = buildPredicates(root, cb);
         return cb.and(predicates.toArray(new Predicate[predicates.size()]));
     }
 
 
-    private List<Predicate> buildPredicates(Root root, CriteriaQuery criteriaQuery, CriteriaBuilder criteriaBuilder) {
+    private List<Predicate> buildPredicates(Root root, CriteriaBuilder criteriaBuilder) {
         List<Predicate> predicates = new ArrayList<>();
-        conditions.forEach(condition -> predicates.add(buildPredicate(condition, root, criteriaQuery, criteriaBuilder)));
+        conditions.forEach(condition -> predicates.add(buildPredicate(condition, root, criteriaBuilder)));
         return predicates;
     }
 
     @SuppressWarnings("unchecked")
-    private Predicate buildPredicate(Condition condition, Root root, CriteriaQuery criteriaQuery, CriteriaBuilder criteriaBuilder) {
+    private Predicate buildPredicate(Condition condition, Root root, CriteriaBuilder criteriaBuilder) {
         switch (condition.getComparison()) {
             case eq:
                 return buildEquals(condition, root, criteriaBuilder);
@@ -52,18 +52,16 @@ public class QueryBuilderImpl<T> implements Specification<T> {
         throw new RuntimeException();
     }
 
+    @SuppressWarnings("unchecked")
     private Predicate buildEquals(Condition condition, Root root, CriteriaBuilder criteriaBuilder) {
-        //todo separate date and other
-        Object o = getValue(condition);
-        if (Type.date.equals(condition.getType())) {
-            Expression e = root.get(condition.getField());
-//            Date o = (Date) getValue(condition);
-//            Date lt = LocalDate
-            Predicate lt = criteriaBuilder.lessThanOrEqualTo(e, (Date) o);
-            Predicate gt = criteriaBuilder.greaterThanOrEqualTo(e, (Date) o);
-            return criteriaBuilder.and(lt, gt);
+        switch (condition.getType()) {
+            case date:
+                return buildEqualsDate(condition, root, criteriaBuilder);
+            case string:
+                return buildEqualsString(condition, root, criteriaBuilder);
+            default:
+                return buildEqualsString(condition, root, criteriaBuilder);
         }
-        return criteriaBuilder.equal(root.get(condition.getField()), o);
     }
 
     @SuppressWarnings("unchecked")
@@ -82,6 +80,22 @@ public class QueryBuilderImpl<T> implements Specification<T> {
             return criteriaBuilder.like(root.get(condition.getField()), Utils.createSearchString(value));
         }
         throw new RuntimeException();
+    }
+
+    @SuppressWarnings("unchecked")
+    private Predicate buildEqualsDate(Condition condition, Root root, CriteriaBuilder criteriaBuilder) {
+        Expression e = root.get(condition.getField());
+
+        Date startDate = (Date) condition.getValue();
+        LocalDateTime dateTime = LocalDateTime.ofInstant(startDate.toInstant(), ZoneId.systemDefault());
+        dateTime = dateTime.plusDays(1).minusSeconds(1);
+        Date endDate = Date.from(dateTime.atZone(ZoneId.systemDefault()).toInstant());
+
+        return criteriaBuilder.between(e, startDate, endDate);
+    }
+
+    private Predicate buildEqualsString(Condition condition, Root root, CriteriaBuilder criteriaBuilder) {
+        return criteriaBuilder.equal(root.get(condition.getField()), getValue(condition));
     }
 
     private Object getValue(Condition condition) {
