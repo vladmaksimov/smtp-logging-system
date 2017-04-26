@@ -86,12 +86,15 @@ public class FilterSpecification<T> implements Specification<T> {
     private Predicate buildEqualsDate(Condition condition, Root root, CriteriaBuilder criteriaBuilder) {
         Expression e = root.get(condition.getField());
 
-        Date startDate = (Date) condition.getValue();
-        LocalDateTime dateTime = LocalDateTime.ofInstant(startDate.toInstant(), ZoneId.systemDefault());
-        dateTime = dateTime.plusDays(1).minusSeconds(1);
-        Date endDate = Date.from(dateTime.atZone(ZoneId.systemDefault()).toInstant());
+        Date startDate = (Date) getValue(condition);
+        if (startDate != null) {
+            LocalDateTime dateTime = LocalDateTime.ofInstant(startDate.toInstant(), ZoneId.systemDefault());
+            dateTime = dateTime.plusDays(1).minusSeconds(1);
+            Date endDate = Date.from(dateTime.atZone(ZoneId.systemDefault()).toInstant());
 
-        return criteriaBuilder.between(e, startDate, endDate);
+            return criteriaBuilder.between(e, startDate, endDate);
+        }
+        return null;
     }
 
     private Predicate buildEqualsString(Condition condition, Root root, CriteriaBuilder criteriaBuilder) {
